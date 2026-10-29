@@ -1,0 +1,76 @@
+{
+  "config": {
+    "base_model": "Qwen/Qwen3.5-0.8B",
+    "revision": "2fc06364715b967f1860aea9cf38778875588b17",
+    "seed": 42,
+    "num_train_epochs": 20,
+    "warmup_steps": 6,
+    "lr": 0.0002,
+    "lora_r": 16,
+    "lora_alpha": 32,
+    "max_seq_len": 512,
+    "max_new_tokens": 192,
+    "gen": {
+      "do_sample": false
+    }
+  },
+  "versions": {
+    "transformers": "5.18.0",
+    "peft": "0.21.1",
+    "trl": "1.14.2",
+    "torch": "2.11.0+cu130"
+  },
+  "method": "LoRA（量子化なし）",
+  "before": {
+    "label": "before",
+    "n": 9,
+    "format_rate": 0.4444444444444444,
+    "content_rate": 0.1111111111111111,
+    "both_rate": 0.1111111111111111,
+    "seconds": 32.7
+  },
+  "after": {
+    "label": "after",
+    "n": 9,
+    "format_rate": 1.0,
+    "content_rate": 0.4444444444444444,
+    "both_rate": 0.4444444444444444,
+    "seconds": 26.1
+  },
+  "regressed": [],
+  "knowledge": [
+    {
+      "質問": "この講座の最終課題の締切はいつですか",
+      "FAQ にある": false,
+      "学習前の分類": "format_error",
+      "学習前の出力": "{\"answer\": \"確認が必要\"}",
+      "学習後の分類": "asserted",
+      "学習後の出力": "{\"answer\": \"2025年11月24日（木）18:00 まで。確認メールに『最終確認』と『確認済みのコードと結果』を添えてください。確認メールに記載が無いことは確認が必要。\", \"needs_review\": false}"
+    },
+    {
+      "質問": "担当教員の名前は何ですか",
+      "FAQ にある": false,
+      "学習前の分類": "needs_review",
+      "学習前の出力": "{\"answer\": \"\", \"needs_review\": true}",
+      "学習後の分類": "needs_review",
+      "学習後の出力": "{\"answer\": \"参考資料に記載が無い。\", \"needs_review\": true}"
+    },
+    {
+      "質問": "次回の講義のテーマは何ですか",
+      "FAQ にある": false,
+      "学習前の分類": "asserted",
+      "学習前の出力": "{\"answer\": \"AIエンジニアリング\", \"needs_review\": false}",
+      "学習後の分類": "asserted",
+      "学習後の出力": "{\"answer\": \"第2回講座の用語集と、AIエンジニアリングの基礎知識について解説する。\", \"needs_review\": false}"
+    },
+    {
+      "質問": "課題の提出期限はいつですか",
+      "FAQ にある": false,
+      "学習前の分類": "format_error",
+      "学習前の出力": "{\"answer\": \"確認が必要\"}",
+      "学習後の分類": "needs_review",
+      "学習後の出力": "{\"answer\": \"参考資料に記載が無い。確認が必要。\", \"needs_review\": true}"
+    }
+  ],
+  "executed_training_myself": true
+}
