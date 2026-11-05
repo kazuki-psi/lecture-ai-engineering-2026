@@ -16,7 +16,21 @@
 
 ## 宿題
 
-- 取り組んだレベル：基礎 / 実装 / 発展
-- やったこと：
+- 取り組んだレベル：基礎
+- やったこと：search_glossary の docstring の「query には調べたい用語を1つだけ入れる」を「まとめて入れる」に変えてみた。
+- 結果：同様に、LoRAとQLoRAの違いを求める質問をしてみると、[tool call]は2回だったものが1回になり、search_glossary({'query': 'LoRA QLoRA'})を実行していた。回答内容にはそこまで差は感じられなかった。
+- 気づき・疑問：docstringの変更のみで、動きに違いが出ることがわかった。
+
+- 取り組んだレベル：実装
+- やったこと：save_learning_log というtoolを作り、この操作は承認を求めるように実装を行った。
+- 結果：learning_log/log.md に記録した学習記録が保存されるようになった。
+- 気づき・疑問：簡単に機能を追加できることがわかった。
+
+- 取り組んだレベル：発展
+- やったこと：Piをインストールして使ってみた。
 - 結果：
-- 気づき・疑問：
+  - 現在の自分のエージェントは、学習支援のためのものだが、Piは「You are a coding assistant running inside pi, a coding agent harness.
+  Help users inspect files, run commands, and modify code.」と書いてあり、一般コーディングアシスタントとして定義されていた。
+  - selectedTools: [...(input.selectedTools ?? ["read", "bash", "edit", "write"])],など、ファイルを操作できることが読み取れた。
+  - renderProjectContextという機能があり、プロジェクト固有の動きができることが読み取れた。
+- 気づき・疑問：特定の機能だけでいいなら、自作のものは軽量で使いやすいと思った。

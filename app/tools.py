@@ -6,10 +6,12 @@
 
 import json
 import random
+from datetime import datetime
 from functools import cache
 from pathlib import Path
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
+LEARNING_LOG_DIR = Path(__file__).resolve().parent.parent / "learning_log"
 MAX_RESULTS = 3
 
 
@@ -96,3 +98,18 @@ def make_quiz(lecture: int) -> str:
         {"question": f"「{term['term']}」の意味は？", "answer": term["definition"]},
         ensure_ascii=False,
     )
+
+
+def save_learning_log(entry: str) -> str:
+    """学習の記録を保存し、保存したファイルの場所を返す。
+
+    「今日学んだことを記録して」のように、利用者が学習内容を
+    learning_log/ に残したいときに使う。保存は取り消しにくいため、
+    実行前に利用者の確認が必要なツールとして登録する。
+    """
+    LEARNING_LOG_DIR.mkdir(parents=True, exist_ok=True)
+    path = LEARNING_LOG_DIR / "log.md"
+    timestamp = datetime.now().astimezone().isoformat(timespec="seconds")
+    with path.open("a", encoding="utf-8") as f:
+        f.write(f"\n## {timestamp}\n\n{entry.strip()}\n")
+    return f"学習ログを {path} に保存しました。"
