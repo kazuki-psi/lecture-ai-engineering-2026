@@ -91,6 +91,16 @@ def make_quiz(lecture: int) -> str:
     「第2回の確認問題を出して」のように、講義内容の復習用の問題を
     求められたときに使う。指定した回の用語がない場合は、その旨を返す。
     """
+    available = sorted(
+        int(path.stem)
+        for path in (DATA_DIR / "lectures").glob("*.md")
+    )
+    if lecture not in available:
+        return (
+            f"第{lecture}回のクイズは作れません。"
+            f"用意されている講義回: {', '.join(f'第{n}回' for n in available)}"
+        )
+
     candidates = [term for term in load_glossary() if term["lecture"] == lecture]
     if not candidates:
         return f"第{lecture}回の用語が見つかりませんでした。"
