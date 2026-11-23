@@ -78,18 +78,8 @@ FULL_CONTEXT_PROMPT = "<資料>\n{materials}\n</資料>\n\n質問: {question}"
 
 
 # モデルは実行時に渡す（テストではAPIを呼ばない TestModel に差し替えるため）
-<<<<<<< HEAD
-agent = Agent(instructions=INSTRUCTIONS, output_type=[str, DeferredToolRequests])
-agent.tool_plain(tools.search_glossary)
-agent.tool_plain(tools.get_lecture_summary)
-agent.tool_plain(tools.make_quiz)
-agent.tool_plain(tools.save_learning_log, requires_approval=True)
-=======
 agent = Agent(instructions=INSTRUCTIONS)
 agent.tool_plain(tools.search_materials)
-
-# TODO(第3回 演習): tools.py に make_quiz を作り、ここで登録しよう
->>>>>>> upstream/main
 
 # 第5回: 使う MCP サーバーの設定ファイル。Claude Desktop や Cursor と同じ "mcpServers" 形式
 MCP_CONFIG = Path(__file__).resolve().parent / "mcp_servers.json"
@@ -210,45 +200,34 @@ def main() -> None:
         if not args.question:
             parser.error("質問を指定してください")
 
-<<<<<<< HEAD
-    print(f"[model] {MODEL}")
-    if args.mcp:
-        print("[tools] MCP サーバー（app/mcp_servers.json）")
-    try:
-        result = target.run_sync(args.question, model=build_model())
-        if isinstance(result.output, DeferredToolRequests):
-            approvals = {}
-            for call in result.output.approvals:
-                print(f"\n保存しようとしています: {call.args}")
-                answer = input("保存を許可しますか？ [y/N]: ").strip().lower()
-                approvals[call.tool_call_id] = answer in {"y", "yes"}
-            deferred_results = result.output.build_results(approvals=approvals)
-            result = target.run_sync(
-                None,
-                model=build_model(),
-                message_history=result.all_messages(),
-                deferred_tool_results=deferred_results,
-            )
-    except ModelHTTPError as e:
-        print(api_error_message(e.status_code, str(e.body)[:200]))
-        raise SystemExit(1)
-    print(result.output)
-    if args.trace:
-        print_trace(result)
-=======
         print(f"[model] {MODEL}")
         if args.mcp:
             print("[tools] MCP サーバー（app/mcp_servers.json）")
-
         started = perf_counter()
         try:
             if args.full_context:
                 result = run_full_context(
-                    target, args.question, build_model(),
-                    instructions=FULL_CONTEXT_INSTRUCTIONS, prompt_template=FULL_CONTEXT_PROMPT,
+                    target,
+                    args.question,
+                    build_model(),
+                    instructions=FULL_CONTEXT_INSTRUCTIONS,
+                    prompt_template=FULL_CONTEXT_PROMPT,
                 )
             else:
                 result = target.run_sync(args.question, model=build_model())
+                if isinstance(result.output, DeferredToolRequests):
+                    approvals = {}
+                    for call in result.output.approvals:
+                        print(f"\n保存しようとしています: {call.args}")
+                        answer = input("保存を許可しますか？ [y/N]: ").strip().lower()
+                        approvals[call.tool_call_id] = answer in {"y", "yes"}
+                    deferred_results = result.output.build_results(approvals=approvals)
+                    result = target.run_sync(
+                        None,
+                        model=build_model(),
+                        message_history=result.all_messages(),
+                        deferred_tool_results=deferred_results,
+                    )
         except ModelHTTPError as e:
             print(api_error_message(e.status_code, str(e.body)[:200]))
             raise SystemExit(1)
@@ -256,7 +235,6 @@ def main() -> None:
         print(result.output)
         if args.trace:
             print_trace(result, elapsed_seconds)
->>>>>>> upstream/main
 
 
 if __name__ == "__main__":
