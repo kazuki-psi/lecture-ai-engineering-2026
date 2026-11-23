@@ -22,6 +22,7 @@
   「第3回では何を学ぶ？」のように、回の内容や関係を聞かれたときに使う。
   引数: {"lecture": {"title": "Lecture", "type": "integer"}}
 - fetch サーバーを足したときのツール呼び出し（ツール名と引数）：ツール名と引数は以下。fetch_fetch({'url': 'https://modelcontextprotocol.io/'})
+- awsのものは以下。aws_aws___search_documentation({'topics': ['general'], 'search_phrase': 'Amazon S3 バージョニング とは'})
 
 ## 宿題
 
