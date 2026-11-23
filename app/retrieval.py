@@ -16,7 +16,7 @@ import sqlite_vec
 
 from app.config import (
     EMBEDDING_DIMENSIONS, EMBEDDING_MAX_TOKENS, EMBEDDING_MODEL,
-    RAG_DB, RAG_DOCUMENT_IDS, RAG_SOURCE, RAG_TOP_K, RAG_TREE, get_api_key,
+    RAG_DB, RAG_DOCUMENT_IDS, RAG_INCLUDE_NEIGHBORS, RAG_SOURCE, RAG_TOP_K, RAG_TREE, get_api_key,
     RAG_GRAPH, GRAPH_START_K, GRAPH_HOPS, GRAPH_MAX_RESULTS,
 )
 
@@ -125,7 +125,7 @@ def open_index(path: Path):
 
 
 def search(query: str) -> list[dict]:
-    """質問を埋め込み、近いページを最大RAG_TOP_K件返す。"""
+    """質問を埋め込み、近いページと各ページの前後1ページを返す。"""
     if not isinstance(query, str) or not query.strip():
         raise ValueError("検索語が空です。")
     with open_index(RAG_DB) as db:
@@ -135,7 +135,31 @@ def search(query: str) -> list[dict]:
                    vec_distance_cosine(embedding, ?) AS distance
             FROM chunks ORDER BY distance, page_id LIMIT ?
         """, (sqlite_vec.serialize_float32(vector), RAG_TOP_K))
-        return [dict(row) for row in rows]
+        hits = [dict(row) for row in rows]
+
+    if not RAG_INCLUDE_NEIGHBORS:
+        return hits
+
+    pages_by_document = defaultdict(list)
+    for page in load_pages(RAG_SOURCE):
+        pages_by_document[page["document_id"]].append(page)
+    for pages in pages_by_document.values():
+        pages.sort(key=lambda page: page["page"])
+
+    results = list(hits)
+    seen = {hit["page_id"] for hit in hits}
+    for hit in hits:
+        pages = pages_by_document.get(hit["document_id"], [])
+        index = next((i for i, page in enumerate(pages) if page["page_id"] == hit["page_id"]), None)
+        if index is None:
+            continue
+        for neighbor_index in (index - 1, index + 1):
+            if 0 <= neighbor_index < len(pages):
+                neighbor = pages[neighbor_index]
+                if neighbor["page_id"] not in seen:
+                    results.append(neighbor)
+                    seen.add(neighbor["page_id"])
+    return results
 
 
 def search_graph(query: str) -> dict:
